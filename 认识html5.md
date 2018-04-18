@@ -21,7 +21,7 @@
     <meta charset="UTF-8">
     <title>HTML5的DOCTYPE声明</title>
 </head>
-
+```
 
 - HTML4
 
@@ -204,3 +204,23 @@ window 对象触发的事件，适用于 `<body>` 标签：
 |ontimeupdate|当媒介改变其播放位置时运行脚本|
 |onvolumechange|当媒介改变音量亦或当音量被设置为静音时运行脚本|
 |onwaiting|当媒介已停止播放但打算继续播放时运行脚本|
+
+## web存储
+
+### cookie
+
+HTML5以前方法，浏览器可以将数据存储在服务器上。
+缺点：不适合大量数据的存储；由每个对服务器的请求来传递，性能较低。
+
+### localstorage和sessionStorage
+
+HTML5新增方法。
+
+只在请求时使用数据，能够满足大量数据的存储。
+
+不同的网站数据存储独立，且只能访问自己的数据。
+
+使用JavaScript来存储和访问。
+
+其中localstorage没有**时间限制**，sessionStorage针对一个session，关闭浏览器就会丢失。
+

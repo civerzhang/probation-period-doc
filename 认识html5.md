@@ -224,3 +224,73 @@ HTML5新增方法。
 
 其中localstorage没有**时间限制**，sessionStorage针对一个session，关闭浏览器就会丢失。
 
+## websocket协议
+
+### 简介
+
+以tcp协议为基础，与http兼容的web协议。相比http协议，最大特点是服务器能够主动向客户端推送信息。
+
+其他特点包括：
+
+- 建立在 TCP 协议之上，服务器端的实现比较容易。
+
+- 与 HTTP 协议有着良好的兼容性。默认端口也是80和443，并且握手阶段采用 HTTP 协议，因此握手时不容易屏蔽，能通过各种 HTTP 代理服务器。
+
+- 数据格式比较轻量，性能开销小，通信高效。
+
+- 可以发送文本，也可以发送二进制数据。
+
+- 没有同源（协议、域名、端口）限制，客户端可以与任意服务器通信。
+
+- 协议标识符是ws（如果加密，则为wss），服务器网址就是 URL。
+
+### 使用
+
+WebSocket对象api参见[MDN](https://developer.mozilla.org/zn-CN/docs/Web/API/WebSocket)
+
+客户端代码示例：
+
+```js
+var ws = new WebSocket("wss://echo.websocket.org");
+
+ws.onopen = function(evt) {
+  console.log("Connection open ...");
+  ws.send("Hello WebSockets!");
+};
+
+ws.onmessage = function(evt) {
+  console.log( "Received Message: " + evt.data);
+  ws.close();
+};
+
+ws.onclose = function(evt) {
+  console.log("Connection closed.");
+};
+```
+
+服务端：搭建ws协议服务器
+
+绑定特定事件响应即可。
+示例代码（来自[WebSocket-Node](https://github.com/theturtle32/WebSocket-Node)）：
+
+```js
+#!/usr/bin/env node
+var WebSocketServer = require('websocket').server;
+wsServer = new WebSocketServer({
+    httpServer: server,
+    autoAcceptConnections: false
+});
+wsServer.on('request', function(request) {
+    var connection = request.accept('echo-protocol', request.origin);
+    console.log((new Date()) + ' Connection accepted.');
+    connection.on('message', function(message) {
+        if (message.type === 'utf8') {
+            console.log('Received Message: ' + message.utf8Data);
+            connection.sendUTF(message.utf8Data);
+        }
+    });
+    connection.on('close', function(reasonCode, description) {
+        console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
+    });
+});
+```

@@ -342,3 +342,39 @@ ctx.fillStyle=grd;
 
 ctx.stroke();//渲染图形到画布
 ```
+
+## Web Worker
+
+后台运行的js，脚本独立，不影响页面性能
+
+浏览器支持：IE不支持
+
+代码示例：
+
+- 需要后台运行的js：注意postMessage()方法
+
+```js
+var i=0;
+function timedCount()
+{
+i=i+1;
+postMessage(i);
+setTimeout("timedCount()",500);
+}
+timedCount();
+```
+
+- 主页面：注意onmessage事件
+
+```js
+...
+if(typeof(w)=="undefined"){
+    w=new Worker("demo_workers.js");
+}
+w.onmessage = function (event) {
+document.getElementById("result").innerHTML=event.data;
+};
+...
+```
+
+由于 web worker 位于外部文件中，它们无法访问`window 对象`、`document 对象`和`parent 对象`

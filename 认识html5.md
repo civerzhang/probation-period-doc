@@ -294,3 +294,51 @@ wsServer.on('request', function(request) {
     });
 });
 ```
+
+## HTML图形
+
+### Canvas vs. SVG
+
+Canvas | SVG
+---------|----------
+使用js渲染 | 使用XML描述
+逐像素，无法获取DOM | 可以获取DOM元素，可以为单个元素添加事件
+图形绘制完成之后浏览器不管，改变位置时整个图形会重绘 | SVG对象改变浏览器自动重现图形
+依赖分辨率|不依赖分辨率
+不支持事件处理器|支持事件处理器
+文本渲染能力较弱|强于大块区域渲染（如地图）
+可以保存为.jpg或.png格式|渲染复杂图形效率低
+适合图像密集的场景，如游戏|不适合游戏
+
+### Canvas使用
+
+浏览器支持：不支持IE版本<=8
+
+具体API参考[W3C文档](http://www.w3school.com.cn/html5/html5_ref_canvas.asp)
+
+示例代码：
+
+```js
+var icanvas=document.getElementById("iCanvas");
+var ictx=icanvas.getContext("2d");
+
+ctx.beginPath();
+ctx.lineWidth=10;
+ctx.lineJoin="round";//线条相交样式
+ctx.moveTo(10,10);
+ctx.lineTo(120,110);//一条线段
+ctx.lineTo(10,110);//折线
+ctx.closePath();//空心三角形
+ctx.fill();//填充
+ctx.arc(100,75,50,0,2*Math.PI);//曲线
+ctx.rect(20,20,150,100);//矩形
+ctx.shadowColor="black";//阴影
+ctx.scale(2,2);//宽高缩放，后面stroke的图形都会被缩放，坐标也会缩放
+//渐变，addColorStop() 方法与 createLinearGradient() 或 createRadialGradient() 一起使用。
+var grd=ctx.createLinearGradient(0,0,170,0);
+grd.addColorStop(0,"black");
+grd.addColorStop(1,"white");
+ctx.fillStyle=grd;
+
+ctx.stroke();//渲染图形到画布
+```

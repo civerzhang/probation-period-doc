@@ -1,0 +1,32 @@
+div {
+  word-wrap: break-word
+}
+
+#container {
+  background-color: #eee;
+  padding: 20px;
+  border: solid 1px #999;
+}
+
+.left {
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  width: 200px;
+  background-color: lightpink
+}
+
+.center {
+  /* position: absolute; */
+  margin: auto 140px auto 220px;
+  min-width: 100px;
+  background-color: #ffe6b8;
+}
+
+.right {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  width: 120px;
+  background-color: darkorange
+}

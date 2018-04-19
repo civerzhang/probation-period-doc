@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>动画2</title>
+  <style>
+    #box {
+      position: absolute;
+      width: 100px;
+      height: 150px;
+      background-color: #eee;
+      overflow: hidden;
+      text-align: center;
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 4px 18px 0 rgba(0, 0, 0, 0.1);
+    }
+
+    img {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      margin: auto;
+      width: 50px;
+      height: 50px;
+      animation:myfirst 1s linear infinite reverse;
+    }
+
+@keyframes myfirst
+{
+  0%   {transform: rotate(0deg);}
+  100% {transform: rotate(360deg);}
+}
+  </style>
+</head>
+
+<body>
+  <div id="box">
+    <img src="animation.png" alt="">
+  </div>
+</body>
+
+</html>

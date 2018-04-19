@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>动画1</title>
+  <style>
+    #box {
+      position: absolute;
+      width: 100px;
+      height: 150px;
+      background-color: #eee;
+      overflow: hidden;
+      text-align: center;
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 4px 18px 0 rgba(0, 0, 0, 0.1);
+    }
+
+    img {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 20px;
+      margin: auto;
+      width: 50px;
+      height: 50px;
+      transition-duration: 0.5s;
+    }
+
+    #banner {
+      background-color: white;
+      color: black;
+      margin-top: 110px;
+      font-weight: bold;
+      transition-duration: 0.5s;
+    }
+
+    #banner:hover {
+      background-color: yellow;
+      color: gray;
+      margin-top: 90px;
+    }
+
+    #banner:hover+img {
+      width: 70px;
+      height: 70px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="box">
+    <div id="banner">
+      welcome!
+      <hr> my friend
+    </div>
+    <img src="animation.png" alt="">
+  </div>
+</body>
+
+</html>

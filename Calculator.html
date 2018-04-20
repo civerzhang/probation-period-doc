@@ -1,0 +1,78 @@
+<html>
+
+<head>
+  <title>Build a JavaScript Calculator</title>
+  <style type="text/css">
+    #calculator {
+      text-align: center;
+      width: 220px
+    }
+
+    textarea {
+      width: 210px
+    }
+
+    button {
+      width: 50px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="calculator">
+    <textarea disabled="disabled" readonly="readonly"></textarea>
+    <div class="buttons">
+      <button value="1">1</button>
+      <button value="2">2</button>
+      <button value="3">3</button>
+      <button value="+">+</button>
+      <button value="4">4</button>
+      <button value="5">5</button>
+      <button value="6">6</button>
+      <button value="-">-</button>
+      <button value="7">7</button>
+      <button value="8">8</button>
+      <button value="9">9</button>
+      <button value="*">*</button>
+      <button value="clear">clear</button>
+      <button value="0">0</button>
+      <button value="=">=</button>
+      <button value="/">/</button>
+    </div>
+    <div id="history">
+
+    </div>
+  </div>
+  <script type="text/javascript">
+    function addlog(data) {
+      var p = document.createElement('p');
+      var text = document.createTextNode(data);
+      p.appendChild(text);
+      document.getElementById('history').append(p);
+    }
+    function click(button) {
+      var textarea = document.getElementsByTagName('textarea')[0];
+        if (this.value === "=") {
+          textarea.value += "=" + eval(textarea.value);
+          addlog(textarea.value);
+          textarea.value = "";
+        } else if (this.value === "clear") {
+          textarea.value = "";
+        } else {
+          textarea.value = textarea.value + this.value;
+        }
+    }
+    function calc() {
+      var num1, num2;
+      var buttons = document.getElementsByTagName('button');
+      for (let index = 0; index < buttons.length; index++) {
+        buttons[index].onclick = click;
+        
+      }
+    }
+    
+    calc();
+  </script>
+</body>
+
+</html>

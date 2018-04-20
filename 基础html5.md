@@ -364,7 +364,7 @@ setTimeout("timedCount()",500);
 timedCount();
 ```
 
-- 主页面：注意onmessage事件
+- 主页面：注意**onmessage**事件
 
 ```js
 ...

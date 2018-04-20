@@ -118,8 +118,17 @@ background: repeating-radial-gradient(red, yellow 10%, green 15%);
 支持文本阴影或者块阴影，使用逗号添加浏览器会重复渲染阴影（加深）
 
 ```css
+box-shadow: x-shadow y-shadow blur spread color inset;
 box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1),0 4px 8px 0 rgba(0, 0, 0, 0.1);
 ```
+
+`x-shadow y-shadow`表示阴影横向和纵向偏移，必须。
+`blur`表示阴影的模糊渐变区域宽度，四个方向，默认0，可选。
+`spread`表示阴影的额外增大的宽度，四个方向，默认0，可选。
+`color`表示阴影的颜色，支持透明色度，默认黑色不透明，可选。
+`inset`加上表示阴影向内扩展，默认向外扩展，可选。
+
+
 
 ### 过渡
 

@@ -1,0 +1,41 @@
+<html>
+
+<head>
+  <title>Build a JavaScript Calculator</title>
+  <style type="text/css">
+    #calculator {
+      text-align: center;
+      width: 220px
+    }
+
+    textarea {
+      width: 210px
+    }
+
+    button {
+      width: 50px;
+    }
+  </style>
+</head>
+
+<body>
+  <script type="text/javascript">
+    var ut_calc = {
+      add :function (n1, n2, precision=2) {
+        return (n1+n2).toFixed(precision)
+      },
+      substract :function (n1, n2, precision=2) {
+        return (n1-n2).toFixed(precision)
+      },
+      multiply  :function (n1, n2, precision=2) {
+        return (n1*n2).toFixed(precision)
+      },
+      divide  :function (n1, n2, precision=2) {
+        return (n1/n2).toFixed(precision)
+      }
+    }
+    console.log(ut_calc.divide(3.3,1.5))
+  </script>
+</body>
+
+</html>

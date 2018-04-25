@@ -28,6 +28,14 @@
   <button onclick="highLightNodes(0,postResult);">后序</button>
 </body>
 <script>
+  /* 节点实例
+    {
+      name:"n21",
+      left:"n31",
+      right:"n32",
+      getParent:function(){ return "n11"; }
+    }
+  */
   // 定义节点
   var Node = {
     createNode: function (name, left, right) {

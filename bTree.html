@@ -45,7 +45,7 @@
       node.right = right;
       node.getParent = function () {
         let num1 = Number(this.name.substr(1, 1));
-        let num2 = Number(this.name.substr(2, 1));
+        let num2 = Number(this.name.substr(2));
         num1 = num1 - 1;
         num2 = (num2 / 2).toFixed(0);
         return this.name.substr(0, 1) + num1 + num2;

@@ -1,41 +1,77 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Build a JavaScript Calculator</title>
-  <style type="text/css">
-    #calculator {
-      text-align: center;
-      width: 220px
-    }
-
-    textarea {
-      width: 210px
-    }
-
-    button {
-      width: 50px;
-    }
-  </style>
 </head>
 
 <body>
   <script type="text/javascript">
-    var ut_calc = {
-      add :function (n1, n2, precision=2) {
-        return (n1+n2).toFixed(precision)
-      },
-      substract :function (n1, n2, precision=2) {
-        return (n1-n2).toFixed(precision)
-      },
-      multiply  :function (n1, n2, precision=2) {
-        return (n1*n2).toFixed(precision)
-      },
-      divide  :function (n1, n2, precision=2) {
-        return (n1/n2).toFixed(precision)
+    // 获取小数转成整数应该增大的倍数
+    function getPow(arg) {
+      if (String(arg).indexOf('.') != -1) {
+        return Math.pow(10, arg.toString().split(".")[1].length);
+      } else {
+        return 1;
       }
     }
-    console.log(ut_calc.divide(3.3,1.5))
+    // 去掉小数点
+    function getInt(arg) {
+      return Number(arg.toString().split(".").join(''));
+    }
+    // 重写tofixed方法，统一各浏览器四舍五入结果
+    Number.prototype.toFixed = function (d) {
+      let s = this + "";
+      if (!d) d = 0;
+      if (s.indexOf(".") == -1) s += ".";
+      s += new Array(d + 1).join("0");
+      if (new RegExp("^(-|\\+)?(\\d+(\\.\\d{0," + (d + 1) + "})?)\\d*$").test(s)) {
+        let s = "0" + RegExp.$2, pm = RegExp.$1, a = RegExp.$3.length, b = true;
+        if (a == d + 2) {
+          a = s.match(/\d/g);
+          if (parseInt(a[a.length - 1]) > 4) {
+            for (let i = a.length - 2; i >= 0; i--) {
+              a[i] = parseInt(a[i]) + 1;
+              if (a[i] == 10) {
+                a[i] = 0;
+                b = i != 1;
+              } else break;
+            }
+          }
+          s = a.join("").replace(new RegExp("(\\d+)(\\d{" + d + "})\\d$"), "$1.$2");
+
+        } if (b) s = s.substr(1);
+        return (pm + s).replace(/\.$/, ""); //去掉末尾的小数点
+      } return this + "";
+
+    };
+    var ut_calc = {
+
+      add: function (n1, n2, precision = 2) {
+        let p = Math.max(getPow(n1), getPow(n2));
+        return ((n1 * p + n2 * p) / p).toFixed(precision)
+      },
+      substract: function (n1, n2, precision = 2) {
+        let p = Math.max(getPow(n1), getPow(n2));
+        return ((n1 * p - n2 * p) / p).toFixed(precision)
+      },
+      multiply: function (n1, n2, precision = 2) {
+        let p = getPow(n1);
+        let q = getPow(n2);
+        return (getInt(n1) * getInt(n2) / p / q).toFixed(precision)
+      },
+      divide: function (n1, n2, precision = 2) {
+        let p = getPow(n1);
+        let q = getPow(n2);
+        return (getInt(n1) / getInt(n2) / p * q).toFixed(precision)
+      }
+    }
+    console.log(ut_calc.add(3.3, 1.5))
   </script>
+
 </body>
 
 </html>

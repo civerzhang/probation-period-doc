@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>二叉树DOM</title>
+  <style>
+    .node {
+      border: 1px black solid;
+      padding: 5px;
+      margin: 5px;
+      float: left;
+    }
+
+    .now {
+      background-color: #adff2f;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="n11" class="node"></div>
+  <div style="clear:both;"></div>
+  <button onclick="highLightNodes(0,preResult);">前序</button>
+  <button onclick="highLightNodes(0,inResult);">中序</button>
+  <button onclick="highLightNodes(0,postResult);">后序</button>
+</body>
+<script>
+  /* 节点实例
+    {
+      name:"n21",
+      left:"n31",
+      right:"n32",
+      getParent:function(){ return "n11"; }
+    }
+  */
+  // 定义节点
+  var Node = {
+    createNode: function (name, left, right) {
+      let node = {};
+      node.name = name
+      node.left = left;
+      node.right = right;
+      node.getParent = function () {
+        let num1 = Number(this.name.substr(1, 1));
+        let num2 = Number(this.name.substr(2));
+        num1 = num1 - 1;
+        num2 = (num2 / 2).toFixed(0);
+        return this.name.substr(0, 1) + num1 + num2;
+      }
+      return node;
+    }
+  }
+
+  /*
+                    n11
+            n21             n22
+        n31     n32     n33    n34
+      n41 n42 n43 n44 n45 n46 n47 n48
+  */
+  // 按高度生成完全二叉树
+  var genTree = function (rowNum) {
+    let _tree = {};
+    if (rowNum == 1) {
+      _tree.push(Node.createNode("n11", null, null));
+    } else {
+      for (let i = 1; i - 1 < rowNum; i++) {
+        for (let j = 1; j - 1 < Math.pow(2, i - 1); j++) {
+          let _name = "n" + i + j;
+          if (i == rowNum) {
+            _tree[_name] = Node.createNode(_name, null, null);
+          } else {
+            _tree[_name] = Node.createNode(_name, "n" + (i + 1) + (j * 2 - 1), "n" + (i + 1) + (j * 2));
+          }
+        }
+      }
+    }
+    return _tree;
+  }
+
+  var MyTree = genTree(4); //根节点是MyTree["n11"]
+  var preResult = [];
+  var inResult = [];
+  var postResult = [];
+
+  // 前序遍历,根-左-右
+  var preTraversal = function (node) {
+    // let _hight = Math.log(btree.length+1)/Math.log(2);
+    // console.log(node.name);
+    preResult.push(node.name)
+    if (node.left != null) {
+      preTraversal(MyTree[node.left])
+    }
+    if (node.right != null) {
+      preTraversal(MyTree[node.right])
+    }
+  }
+  preTraversal(MyTree["n11"]);
+
+  // 中序遍历，左-根-右
+  var inTraversal = function (node) {
+    // let _hight = Math.log(btree.length+1)/Math.log(2);
+    if (node.left != null) {
+      inTraversal(MyTree[node.left])
+    }
+    // console.log(node.name);
+    inResult.push(node.name)
+    if (node.right != null) {
+      inTraversal(MyTree[node.right])
+    }
+  }
+  inTraversal(MyTree["n11"]);
+
+  // 后序遍历，左-右-根
+  var postTraversal = function (node) {
+    // let _hight = Math.log(btree.length+1)/Math.log(2);
+    if (node.left != null) {
+      postTraversal(MyTree[node.left])
+    }
+    if (node.right != null) {
+      postTraversal(MyTree[node.right])
+    }
+    // console.log(node.name);
+    postResult.push(node.name)
+  }
+  postTraversal(MyTree["n11"]);
+
+  // 添加DOM节点
+  var showNode = function (node) {
+    let _div = document.createElement('div');
+    _div.setAttribute('class', 'node');
+    _div.setAttribute('id', node.name);
+    document.getElementById(node.getParent()).appendChild(_div);
+  }
+
+  // 添加DOM树
+  var showTree = function (tree) {
+    for (let i = 0; i < preResult.length; i++) {
+      if (tree.hasOwnProperty(preResult[i]) && preResult[i] != 'n11') {
+        showNode(tree[preResult[i]])
+        console.log(preResult[i])
+      }
+    }
+  }
+  showTree(MyTree);
+
+  // 高亮节点
+  var highLightNodes = function (i,order) {
+    if (i<order.length) {
+    let _node = document.getElementById(order[i]);
+    _node.setAttribute('class','node now');
+    setTimeout(function(){_node.setAttribute('class','node');highLightNodes(i+1,order)}, 500);
+      
+    }
+  }
+  // highLightNodes(0,preResult);
+</script>
+
+</html>

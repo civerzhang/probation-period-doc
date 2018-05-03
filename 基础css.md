@@ -233,4 +233,5 @@ div
 - `animation-direction`  规定动画是否在下一周期逆向地播放。默认是 "normal"；
 - `animation-play-state`  规定动画是否正在运行或暂停。默认是 "running"。
 
-## sass
+## canvas
+

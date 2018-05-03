@@ -7,39 +7,125 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>动画2</title>
   <style>
-    #box {
-      position: absolute;
-      width: 100px;
-      height: 150px;
-      background-color: #eee;
-      overflow: hidden;
+    .box {
+      width: 300px;
+      height: 300px;
+      border: rgb(45, 82, 245) 1px solid;
       text-align: center;
-      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 4px 18px 0 rgba(0, 0, 0, 0.1);
+      vertical-align: middle;
     }
 
-    img {
+    /*通过去掉各个部分的radius和hidden属性可以更直观看到效果*/
+
+    .ouro {
+      position: relative;
+      display: inline-block;
+      height: 46px;
+      width: 46px;
+      border-radius: 50%;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none repeat scroll 0 0 #F2F2F2;
+      overflow: hidden;
+      box-shadow: 0 0 10px rgba(0, 0, 0, .1) inset, 0 0 25px rgba(0, 0, 255, 0.075);
+    }
+
+    /*第一层遮罩，灰色*/
+
+    .ouro:after {
+      content: "";
       position: absolute;
-      left: 0;
-      right: 0;
-      top: 0;
-      bottom: 0;
-      margin: auto;
-      width: 50px;
-      height: 50px;
-      animation:myfirst 1s linear infinite reverse;
+      top: 2px;
+      left: 2px;
+      display: block;
+      height: 42px;
+      width: 42px;
+      background: none repeat scroll 0 0 #F2F2F2;
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(0, 0, 0, .1);
     }
 
-@keyframes myfirst
-{
-  0%   {transform: rotate(0deg);}
-  100% {transform: rotate(360deg);}
+    /*第二层遮罩，使用透明色，使背景动态框的颜色显露出来*/
+
+    .ouro:after {
+      height: 30px;
+      width: 30px;
+      left: 2px;
+      top: 2px;
+      border: 6px solid #F2F2F2;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .ouro>span {
+      position: absolute;
+      height: 100%;
+      width: 50%;
+      overflow: hidden;
+    }
+
+    .left {
+      left: 0
+    }
+
+    .right {
+      left: 50%
+    }
+
+    .anim {
+      position: absolute;
+      left: 100%;
+      top: 0;
+      height: 100%;
+      width: 100%;
+      border-radius: 999px;
+      background: none repeat scroll 0 0 #508EC3;
+      opacity: 0.8;
+      animation: ui-spinner-rotate-left 3s infinite reverse;
+      transform-origin: 0 50% 0;
+      animation-delay: 0s;
+      animation-duration: 3s;
+      animation-timing-function: linear;
+    }
+
+    .left .anim {
+      border-bottom-left-radius: 0;
+      border-top-left-radius: 0;
+    }
+
+    .right .anim {
+      background: none repeat scroll 0 0 rgb(172, 80, 195);
+      border-bottom-right-radius: 0;
+      border-top-right-radius: 0;
+      left: -100%;
+      transform-origin: 100% 50% 0;
+      animation-name: ui-spinner-rotate-right;
+      animation-delay: 0;
+    }
+
+@keyframes ui-spinner-rotate-right{
+  0%{transform:rotate(0deg)}
+  25%{transform:rotate(180deg)}
+  50%{transform:rotate(180deg)}
+  75%{transform:rotate(360deg)}
+  100%{transform:rotate(360deg)}
+}
+@keyframes ui-spinner-rotate-left{
+  0%{transform:rotate(0deg)}
+  25%{transform:rotate(0deg)}
+  50%{transform:rotate(180deg)}
+  75%{transform:rotate(180deg)}
+  100%{transform:rotate(360deg)}
 }
   </style>
 </head>
 
 <body>
-  <div id="box">
-    <img src="animation.png" alt="">
+  <div class="box">
+    <span class="ouro">
+      <span class="left"><span class="anim"></span></span>
+      <span class="right"><span class="anim"></span></span>
+    </span>
   </div>
 </body>
 

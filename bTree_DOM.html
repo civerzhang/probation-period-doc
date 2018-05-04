@@ -9,11 +9,16 @@
   <style>
     .node {
       border: 2px black solid;
-      padding: 5px;
+      padding: 5px 0;
       margin: 5px;
       float: left;
+      min-width: 5px;
+    }
+    .left {
+      margin-left: 0px;
     }
     .right {
+      margin-right: 0px;
       border: 2px blue solid;
     }
     .now {
@@ -26,7 +31,9 @@
   <div id="root" class="node root">
     <div class="node left"></div>
     <div class="node right">
-        <div class="node left"></div>
+        <div class="node right">
+          <div class="node right"></div>
+        </div>
     </div>
   </div>
   <div style="clear:both;"></div>
@@ -36,43 +43,76 @@
 </body>
 <script>
   var r = document.getElementById('root');
+  var preResult = [];
+  var inResult = [];
+  var postResult = [];
+  // 初始化遍历数组
+  window.onload = function(){
+    preTraversal(r);
+    inTraversal(r);
+    postTraversal(r);
+  };
   // 前序遍历,根-左-右
   var preTraversal = function (node) {
     let len = node.children.length;
-    console.log(node.getAttribute('class'));
-    for (let index = 0; index < len; index++) {
-      preTraversal(node.children[index])
-    }
+    let classname = node.getAttribute('class');
+    console.log(classname);
+    preResult.push(node);
+      for (let index = 0; index < len; index++) {
+        preTraversal(node.children[index])
+      }
   }
 
   // 中序遍历，左-根-右
-  // TODO
   var inTraversal = function (node) {
     let len = node.children.length;
+    let classname = node.getAttribute('class');
     if (len==0) {
-      return;
-    } else{
+      console.log(classname);
+      inResult.push(node);
+    } else if (len==1) {
       let c = node.children[0].getAttribute('class');
       if (c.indexOf('left') != -1) {
-        inTraversal(node.children[0])
+        inTraversal(node.children[0]);
+        console.log(classname);
+        inResult.push(node);
+      } else {
+        console.log(classname);
+        inResult.push(node);
+        inTraversal(node.children[0]);
       }
-      console.log(node.getAttribute('class'));
-      if (c.indexOf('right') != -1) {
-        inTraversal(node.children[1])
-      }
+    } else {
+        inTraversal(node.children[0]);
+        console.log(classname);
+        inResult.push(node);
+        inTraversal(node.children[1]);
     }
   }
 
   // 后序遍历，左-右-根
   var postTraversal = function (node) {
     let len = node.children.length;
+    let classname = node.getAttribute('class');
     for (let index = 0; index < len; index++) {
       postTraversal(node.children[index])
     }
-    console.log(node.getAttribute('class'));
+    console.log(classname);
+    postResult.push(node);
   }
 
-  preTraversal(r)
+  // 高亮节点
+  var highLightNodes = function (i,order) {
+    if (i<order.length) {
+    let node = order[i];
+    let classname = node.getAttribute('class');
+    node.setAttribute('class',classname+' now');
+    setTimeout(function(){
+      classname = classname.replace(/now/,"");
+      node.setAttribute('class',classname);
+      highLightNodes(i+1,order)
+      }, 500);
+    }
+  }
 </script>
 
 </html>

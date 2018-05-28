@@ -37,7 +37,25 @@
   * 语法：`[(target)]="expression"、bindon-target="expression"`
   * 场景：双向
 
-## 附：HTML attribute 与 DOM property 的对比
+## 附1：expression和statement
+### 表达式
+JavaScript 中那些具有或可能引发副作用的表达式是被禁止的，包括：
+* 赋值 (=, +=, -=, ...)
+* new 运算符
+* 使用 ; 或 , 的链式表达式
+* 自增和自减运算符：++ 和 --
+和 JavaScript 语法的其它显著不同包括：
+* 不支持位运算 | 和 &
+* 具有新的模板表达式运算符，比如 |、?. 和 !。
+### 语句
+模板语句解析器和模板表达式解析器有所不同，特别之处在于它`支持基本赋值(=)和表达式链(;和,)`。然而，某些JavaScript语法仍然是不允许的：
+* new 运算符
+* 自增和自减运算符：++ 和 --
+* 操作并赋值，例如 += 和 -=
+* 位操作符 | 和 &
+* 模板表达式运算符
+
+## 附2：HTML attribute 与 DOM property 的对比
 
 * attribute 是由 HTML 定义的。property 是由 DOM (Document Object Model) 定义的。
 * 少量 HTML attribute 和 property 之间有着 1:1 的映射，如 id。
@@ -51,7 +69,59 @@ HTML 的 value 这个 attribute 指定了初始值；DOM 的 value 这个 proper
 
 `模板绑定是通过 property 和事件来工作的，而不是 attribute。`
 
+```html
+<!-- 实在需要使用attribute的时候可以这样绑定: -->
+<table border=1>
+  <!-- expression calculates colspan=2 -->
+  <tr><td [attr.colspan]="1 + 1">One-Two</td></tr>
+  <!-- ERROR: There is no `colspan` property to set!
+  <tr><td colspan="{{1 + 1}}">Three-Four</td></tr>
+  -->
+</table>
+ <!-- 绑定class -->
+<!-- reset/override all class names with a binding  -->
+<div class="bad curly special" [class]="badCurly">Bad curly</div>
+<!-- toggle the "special" class on/off with a property -->
+<div [class.special]="isSpecial">The class binding is special</div>
+<!-- binding to `class.special` trumps the class attribute -->
+<div class="special" [class.special]="!isSpecial">This one is not so special</div>
+<!-- 内联样式 -->
+<button [style.background-color]="canSave ? 'cyan': 'grey'" >Save</button>
+<button [style.font-size.%]="!isSpecial ? 150 : 50" >Small</button>
+<button [style.fontSize.em]="isSpecial ? 3 : 1" >Big</button>
+```
+
 **在 Angular 的世界中，attribute 唯一的作用是用来初始化元素和指令的状态。 当进行数据绑定时，只是在与元素和指令的 property 和事件打交道，而 attribute 就完全靠边站了。**
+
+# ngclass、ngstyle
+把 ngClass 绑定到一个 key:value 形式的控制对象。这个对象中的每个 key 都是一个 CSS 类名，如果它的 value 是 true，这个类就会被加上，否则就会被移除。
+```html
+<div [ngClass]="currentClasses">
+This div is initially saveable, unchanged, and special</div>
+<div [ngStyle]="currentStyles">
+This div is initially italic, normal weight, and extra large (24px).</div>
+```
+```ts
+currentClasses: {};
+setCurrentClasses() {
+  // CSS classes: added/removed per current state of component properties
+  this.currentClasses =  {
+    'saveable': this.canSave,
+    'modified': !this.isUnchanged,
+    'special':  this.isSpecial
+  };
+}
+currentStyles: {};
+setCurrentStyles() {
+  // CSS styles: set per current state of component properties
+  this.currentStyles = {
+    'font-style':  this.canSave      ? 'italic' : 'normal',
+    'font-weight': !this.isUnchanged ? 'bold'   : 'normal',
+    'font-size':   this.isSpecial    ? '24px'   : '12px'
+  };
+}
+```
+
 
 # @input装饰器
 
@@ -122,3 +192,180 @@ const id = +this.route.snapshot.paramMap.get('id');
 `paramMap` 是一个从 URL 中提取的路由参数值的字典。 "id" 对应的值就是要获取的英雄的 id。
 
 路由参数总会是字符串。 JavaScript 的 `(+) 操作符`会把字符串转换成数字，英雄的 id 就是数字类型。
+
+# 变化检测
+为了使数据变化能够实时在视图上得到反馈，引入变化检测机制。
+
+Angular与AngularJS都采用脏检查的变化检测机制，前者优于后者主要体现在：
+* 单向数据流向
+* 以组件为单位维度独立进行
+* 生产环境只进行一次检查
+* 可自定义的变化检测策略： Default和onPush
+* 可自定义的变化检测操作：markForcheck()，detectChanges()，detach()， reattach()，checkNoChanges()代码实现上的优化，据说采用了VM friendly的代码（这点我也不太明白，就随便提一下）
+
+## Zones
+使用zone拦截和跟踪异步工作。Zone 是一个全局的对象，用来配置有关如何拦截和跟踪异步回调的规则。Zone 有以下能力：
+* 拦截异步任务调度
+* 提供了将数据附加到 zones 的方法
+* 为异常处理函数提供正确的上下文
+* 拦截阻塞的方法，如 alert、confirm 方法
+Zone 采用猴子补丁 (Monkey-patched) 的方式，将 JavaScript 中的异步任务都进行了包装，这使得这些异步任务都能运行在 Zone 的执行上下文中，每个异步任务在 Zone 中都是一个任务，除了提供了一些供开发者使用的钩子外，默认情况下 Zone 重写了以下方法：
+* setInterval、clearInterval、setTimeout、clearTimeout
+* alert、prompt、confirm
+* requestAnimationFrame、cancelAnimationFrame
+* addEventListener、removeEventListener
+
+## 变化检测器
+angular每个组件都有自己的`变化检测器`，整个应用程序也是一个变化检测器。它负责检测到更新，然后通知视图刷新。引起变化的主要有三类（都是异步操作）：
+* Events：click, mouseover, keyup ...
+* Timers：setInterval、setTimeout
+* XHRs：Ajax(GET、POST ...)
+
+变化检测是单向的，变化总是从根组件开始。所以对于单次变化，只需要检测一次。
+
+当输入属性变化的时候，可以通过组件提供的生命周期钩子 `ngOnChanges` 捕获到变化的内容，即 changes 对象，该对象的内部结构是 key-value 键值对的形式，其中 key 是输入属性的值，value 是一个 SimpleChange 对象，该对象内包含了 previousValue (之前的值) 和 currentValue (当前值)。需要注意的是，如果在组件内手动改变输入属性的值，ngOnChanges 钩子是不会触发的。
+
+## 变化检测策略配置
+```ts
+@Component({
+    selector: '',
+    template: ``,
+    changeDetection: ChangeDetectionStrategy.OnPush
+})
+```
+
+OnPush内部使用`===`来校验新值与旧值是否相等，所以使用 OnPush 策略时，需要使用的 Immutable 的数据结构，才能保证程序正常运行。Immutable 即不可变，表示当数据模型发生变化的时候，我们不会修改原有的数据模型，而是创建一个新的数据模型。
+
+除了使用angular提供的默认检测和onpush检测，也可以用 `Observable` 与 `ChangeDetectorRef` 对象提供的 API，来手动控制组件的变化检测行为。
+
+`ChangeDetectorRef` 是组件的变化检测器的引用。
+```ts
+import { ChangeDetectorRef } from '@angular/core';
+@Component({}) class MyComponent {
+    constructor(private cdRef: ChangeDetectorRef) {}
+}
+```
+主要的方法有：
+```ts
+export abstract class ChangeDetectorRef {
+  //在组件的 metadata 中如果设置了 changeDetection: ChangeDetectionStrategy.OnPush 条件，那么变化检测不会再次执行，除非手动调用该方法。
+  abstract markForCheck(): void;
+  //从变化检测树中分离变化检测器，该组件的变化检测器将不再执行变化检测，除非手动调用 reattach() 方法。
+  abstract detach(): void;
+  //重新添加已分离的变化检测器，使得该组件及其子组件都能执行变化检测
+  abstract reattach(): void;
+  //从该组件到各个子组件执行一次变化检测
+  abstract detectChanges(): void;
+}
+```
+
+使用 `Observables` 机制提升性能和不可变的对象类似，但当发生变化的时候，Observables 不会创建新的模型，但我们可以通过订阅 Observables 对象，在变化发生之后，进行视图更新。使用 Observables 机制的时候，我们同样需要设置组件的变化检测策略为 OnPush。
+
+`Observables` 示例
+counter.component.ts
+```ts
+import { Component, Input, OnInit, ChangeDetectionStrategy, 
+         ChangeDetectorRef } from '@angular/core';
+import { Observable } from 'rxjs/Rx';
+
+@Component({
+    selector: 'exe-counter',
+    template: `
+      <p>当前值: {{ counter }}</p>
+    `,
+    changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class CounterComponent implements OnInit {
+    counter: number = 0;
+
+    @Input() addStream: Observable<any>;
+
+    constructor(private cdRef: ChangeDetectorRef) { }
+
+    ngOnInit() {
+        this.addStream.subscribe(() => {
+            this.counter++;
+            this.cdRef.markForCheck();
+        });
+    }
+}
+```
+app.component.ts
+```ts
+import { Component, OnInit } from '@angular/core';
+import { Observable } from 'rxjs/Rx';
+
+@Component({
+  selector: 'exe-app',
+  template: `
+   <exe-counter [addStream]='counterStream'></exe-counter>
+  `
+})
+export class AppComponent implements OnInit {
+  counterStream: Observable<any>;
+  
+  ngOnInit() {
+     this.counterStream = Observable.timer(0, 1000); 
+  }
+}
+```
+
+## 观察者模式（发布订阅）
+### RxJS Subject
+Subject有以下特点：
+* Subject 既是 Observable 对象，又是 Observer 对象
+* 当有新消息时，Subject 会对内部的 observers 列表进行组播 (multicast)
+
+`Subject`使用遍历的形式进行信息发布，中途有某个观察者出错导致遍历中断会使后面的观察者都无法接收到新的消息。为了解决这个问题，需要在增加观察者时给每个观察者添加错误处理，示例：
+```ts
+const source = Rx.Observable.interval(1000);
+const subject = new Rx.Subject();
+
+const example = subject.map(x => {
+    if (x === 1) {
+        throw new Error('oops');
+    }
+    return x;
+});
+
+subject.subscribe(
+    x => console.log('A', x),
+    error => console.log('A Error:' + error)
+);
+    
+example.subscribe(
+    x => console.log('B', x),
+    error => console.log('B Error:' + error)
+);
+
+subject.subscribe(
+    x => console.log('C', x),
+    error => console.log('C Error:' + error)
+);
+
+source.subscribe(subject);
+```
+
+`Subject`的五个常用方法：
+* next - 每当 Subject 对象接收到新值的时候，next 方法会被调用
+* error - 运行中出现异常，error 方法会被调用
+* complete - Subject 订阅的 Observable 对象结束后，complete 方法会被调用
+* subscribe - 添加观察者
+* unsubscribe - 取消订阅 (设置终止标识符、清空观察者列表)
+
+### BehaviorSubject
+`BehaviorSubject`是Subject的子类，相比于Subject，有以下不同：
+* 保存最新的值。
+* 添加新的观察者的时候会自动给新观察者发送一次最新的值。
+使用的时候需要设置初始值：
+```ts
+var subject = new Rx.BehaviorSubject(0); // 设定初始值
+```
+### ReplaySubject
+`ReplaySubject`是Subject的子类，相比于Subject，有以下不同：
+* 有自己的缓冲区保存最近的几个值
+* 添加新的观察者的时候会向新增的订阅者重新发送最后几个值
+使用的时候需要设置缓存区大小：
+```ts
+var subject = new Rx.ReplaySubject(2); // 设定缓存区，给新观察者发送最近两个值
+```

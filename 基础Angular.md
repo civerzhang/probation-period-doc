@@ -36,7 +36,23 @@
 * 双向
   * 语法：`[(target)]="expression"、bindon-target="expression"`
   * 场景：双向
+## 事件绑定
+在事件绑定中，Angular 会为目标事件设置事件处理器。
 
+当事件发生时，这个处理器会执行模板语句。 典型的模板语句通常涉及到响应事件执行动作的接收器，例如从 HTML 控件中取得值，并存入模型。
+
+绑定会通过名叫 `$event` 的事件对象传递关于此事件的信息（包括数据值）。
+
+事件对象的形态取决于目标事件。如果目标事件是原生 DOM 元素事件， $event 就是 DOM 事件对象，它有像 target 和 target.value 这样的属性。
+```html
+<input [value]="currentHero.name" (input)="currentHero.name=$event.target.value" >
+```
+
+对于双向绑定，当一个元素拥有可以设置的属性 x 和对应的事件 xChange 时，解释 [(x)] 语法就容易多了。
+```html
+<app-sizer [(size)]="fontSizePx"></app-sizer>
+<app-sizer [size]="fontSizePx" (sizeChange)="fontSizePx=$event"></app-sizer>
+```
 ## 附1：expression和statement
 ### 表达式
 JavaScript 中那些具有或可能引发副作用的表达式是被禁止的，包括：
@@ -93,7 +109,8 @@ HTML 的 value 这个 attribute 指定了初始值；DOM 的 value 这个 proper
 
 **在 Angular 的世界中，attribute 唯一的作用是用来初始化元素和指令的状态。 当进行数据绑定时，只是在与元素和指令的 property 和事件打交道，而 attribute 就完全靠边站了。**
 
-# ngclass、ngstyle
+# 指令
+## ngclass、ngstyle
 把 ngClass 绑定到一个 key:value 形式的控制对象。这个对象中的每个 key 都是一个 CSS 类名，如果它的 value 是 true，这个类就会被加上，否则就会被移除。
 ```html
 <div [ngClass]="currentClasses">
@@ -122,8 +139,31 @@ setCurrentStyles() {
 }
 ```
 
+## 模板引用变量#var
+可以使用#或者ref-来声明当前元素的引用
+```html
+<input #phone placeholder="phone number">
+<input ref-fax placeholder="fax number">
+```
 
-# @input装饰器
+## @Input() 和 @Output()
+输入属性是一个带有 @Input 装饰器的可设置属性。当它通过属性绑定的形式被绑定时，值会“流入”这个属性。
+
+输出属性是一个带有 @Output 装饰器的可观察对象型的属性。 这个属性几乎总是返回 Angular 的`EventEmitter`。 当它通过事件绑定的形式被绑定时，值会“流出”这个属性。
+```ts
+@Input()  hero: Hero;
+@Output() deleteRequest = new EventEmitter<Hero>();
+//or
+@Component({
+  inputs: ['hero'],
+  outputs: ['deleteRequest'],
+})
+//别名
+@Output('myClick') clicks = new EventEmitter<string>(); //  @Output(alias) propertyName = ...
+@Directive({
+  outputs: ['clicks:myClick']  // propertyName:alias
+})
+```
 
 父组件向子组件传值，父组件以`属性绑定`形式传递，子组件类接受数据需要加上`@input`装饰器来识别数据，才能在组件中渲染出来。
 ```ts
@@ -133,6 +173,30 @@ setCurrentStyles() {
 //子组件
 import { Component, OnInit, Input } from '@angular/core';
 @Input() variableName;
+```
+# 操作符
+## 管道操作符 ( | )
+```html
+<!-- 管道操作符会把它左侧的表达式结果传给它右侧的管道函数。 -->
+<div>Title through uppercase pipe: {{title | uppercase}}</div>
+<!-- 可以串联 -->
+<!-- Pipe chaining: convert title to uppercase, then to lowercase -->
+<div>Title through a pipe chain:
+  {{title | uppercase | lowercase}}
+</div>
+<!-- 可以使用参数 -->
+<!-- pipe with configuration argument => "February 25, 1970" -->
+<div>Birthdate: {{currentHero?.birthdate | date:'longDate'}}</div>
+<!-- 常用json管道来格式化数据做调试。 -->
+<div>{{currentHero | json}}</div>
+```
+## 安全导航操作符 ( ?. )
+Angular 的安全导航操作符 (?.) 是一种流畅而便利的方式，用来保护出现在属性路径中 null 和 undefined 值。
+```html
+<!-- 这里的currentHero为null视图也会显示其他部分，不会崩溃。 -->
+The current hero's name is {{currentHero?.name}}
+<!-- 可以连续使用 -->
+a?.b?.c?.d
 ```
 
 # 服务，依赖注入
